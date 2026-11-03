@@ -5,7 +5,14 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check app.js && node --check lib/config.mjs && node --check lib/store.mjs && node --check lib/engine.mjs && node --check lib/solana.mjs",
-    "test": "node test.mjs"
+    "check": "node --check server.mjs && node --check app.js && node --check runtime-config.js && node --check lib/config.mjs && node --check lib/store.mjs && node --check lib/engine.mjs && node --check lib/solana.mjs && node --check lib/wallets.mjs && node --check lib/jupiter.mjs && node --check lib/tokens.mjs && node --check lib/strategy.mjs && node --check lib/risk.mjs && node --check lib/executor.mjs && node --check lib/treasury.mjs",
+    "test": "node test.mjs",
+    "generate:secrets": "node scripts/generate-secrets.mjs"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

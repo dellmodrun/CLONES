@@ -4,7 +4,8 @@ const CONTRACT_ADDRESS = 'TBA';
 const PUMP_URL = 'https://pump.fun/';
 const X_URL = '#';
 const EXPLORER_URL = 'https://solscan.io';
-const STATIC_HOST = !['localhost', '127.0.0.1'].includes(location.hostname);
+const API_BASE = String(globalThis.CLONES_RUNTIME_URL || '').replace(/\/$/, '');
+const STATIC_HOST = !API_BASE && !['localhost', '127.0.0.1'].includes(location.hostname);
 const STATIC_AGENT = {
   id: 1,
   pumpName: 'clone_0001',
@@ -103,7 +104,7 @@ const api = async (path) => {
     return null;
   }
   try {
-    const response = await fetch(path, { cache: 'no-store' });
+    const response = await fetch(`${API_BASE}${path}`, { cache: 'no-store' });
     return response.ok ? response.json() : null;
   } catch {
     return null;
@@ -120,6 +121,7 @@ function renderState(nextState) {
   const firstRender = !state;
   state = nextState;
   const live = state.mode === 'live';
+  const launched = Boolean(state.ca && state.ca !== 'TBA');
   const stats = state.agents;
 
   $$('.js-agent-usd').forEach((element) => { element.textContent = usd(state.agentUsd, 0); });
@@ -127,16 +129,19 @@ function renderState(nextState) {
   $$('.js-bank-usd').forEach((element) => { element.textContent = usd(state.bankUsd, 0); });
   $$('.js-sweep-usd').forEach((element) => { element.textContent = usd(state.sweepUsd, 0); });
   $$('.js-team').forEach((element) => { element.textContent = `${state.teamPct}%`; });
-  $$('.js-buy').forEach((element) => { element.href = state.pumpUrl || PUMP_URL; });
+  $$('.js-buy').forEach((element) => {
+    element.href = state.pumpUrl || PUMP_URL;
+    if (element.classList.contains('primary')) element.textContent = launched ? 'Buy on Pump.fun' : 'Launch pending';
+  });
 
   $('#h-mcap').textContent = state.token?.marketCap ? usd(state.token.marketCap) : 'TBA';
   $('#h-agents').textContent = integer(stats.total);
   $('#h-into').textContent = usd(stats.investedUsd);
   $('#live-dot').classList.toggle('on', live);
-  $('#h-mode-text').textContent = live ? 'Live' : 'Launching soon';
+  $('#h-mode-text').textContent = live ? 'Live' : launched ? 'Configured' : 'Launching soon';
   $('#ca-text').textContent = state.ca || 'TBA';
-  $('#ca').disabled = !state.ca;
-  $('#ca').title = state.ca ? 'Copy contract address' : 'Contract address to be announced';
+  $('#ca').disabled = !launched;
+  $('#ca').title = launched ? 'Copy contract address' : 'Contract address to be announced';
   $('#x-link').href = state.xUrl || X_URL;
   $('#b-x').href = state.xUrl || X_URL;
 
@@ -176,13 +181,20 @@ function renderState(nextState) {
   $('#f-unclaimed').textContent = usd(state.fees.unclaimedUsd);
   $('#f-spent').textContent = usd(state.fees.spentUsd);
   $('#f-team').textContent = usd(state.fees.teamUsd);
-  $('#treasury').hidden = !state.treasury;
-  if (state.treasury) {
-    $('#treasury-link').textContent = state.treasury.address;
-    $('#treasury-link').href = chainUrl('address', state.treasury.address);
-    $('#treasury-sol').textContent = usd(state.treasury.usdValue);
+  const treasuryAddress = typeof state.treasury === 'string' ? state.treasury : state.treasury?.address;
+  $('#treasury').hidden = !treasuryAddress;
+  if (treasuryAddress) {
+    $('#treasury-link').textContent = short(treasuryAddress);
+    $('#treasury-link').href = chainUrl('address', treasuryAddress);
+    const treasurySol = state.chain?.treasuryLamports == null ? null : state.chain.treasuryLamports / 1_000_000_000;
+    $('#treasury-sol').textContent = treasurySol == null ? '' : `${treasurySol.toFixed(4)} SOL`;
   }
-  $('#claims').innerHTML = state.fees.claims.map((claim) => `<li><span>Fees claimed <span class="muted">· ${ago(claim.at)}</span></span><span><b>${usd(claim.usd)}</b>${claim.tx ? ` · <a href="${chainUrl('tx', claim.tx)}" target="_blank" rel="noopener">tx</a>` : ''}</span></li>`).join('');
+  $('#claims').innerHTML = state.fees.claims.map((claim) => {
+    const at = claim.at || claim.observedAt;
+    const amount = claim.usd ?? claim.amountUsd;
+    const tx = claim.tx || claim.signature;
+    return `<li><span>Fees claimed${at ? ` <span class="muted">· ${ago(Date.parse(at))}</span>` : ''}</span><span><b>${usd(amount)}</b>${tx ? ` · <a href="${chainUrl('tx', tx)}" target="_blank" rel="noopener">tx</a>` : ''}</span></li>`;
+  }).join('');
   $('#claims-empty').hidden = state.fees.claims.length > 0;
 
   if (firstRender) {
@@ -280,14 +292,21 @@ async function loadCallouts() {
   const result = await api('/api/callouts?limit=150');
   if (!result) return;
   const callouts = result.callouts || [];
-  $('#callouts').innerHTML = callouts.map((callout) => `<li class="item">
-    <img src="${avatar(agents.get(callout.agentId))}" alt="" loading="lazy">
+  $('#callouts').innerHTML = callouts.map((callout) => {
+    const isCandidate = callout.type === 'market_candidate';
+    const title = isCandidate ? `${esc(callout.symbol)} · score ${esc(callout.score)}` : esc(agentName(agents.get(callout.agentId) || callout));
+    const detail = isCandidate
+      ? `Organic ${esc(callout.organicScore)} · liquidity ${usd(callout.liquidityUsd, 0)} · ${integer(callout.holderCount)} holders · top wallets ${esc(callout.topHoldersPct)}%`
+      : esc(callout.text || '');
+    return `<li class="item">
+    <img src="${isCandidate ? esc(callout.icon || './clones.png') : avatar(agents.get(callout.agentId))}" alt="" loading="lazy">
     <div class="item-body">
-      <div class="item-head"><a href="#" data-agent="${callout.agentId}"><b>${esc(agentName(agents.get(callout.agentId) || callout))}</b></a> on <a href="${PUMP_URL}" target="_blank" rel="noopener"><b>${callout.kind === 'clones' ? '$CLONES' : esc(callout.symbol || 'token')}</b></a></div>
-      <div class="said">${esc(callout.text || '')}</div>
+      <div class="item-head">${isCandidate ? `<b>${title}</b>` : `<a href="#" data-agent="${callout.agentId}"><b>${title}</b></a>`}</div>
+      <div class="said">${detail}</div>
     </div>
-    <span class="when muted">${callout.at ? ago(callout.at) : 'queued'}</span>
-  </li>`).join('');
+    <span class="when muted">${callout.observedAt ? ago(Date.parse(callout.observedAt)) : callout.at ? ago(callout.at) : 'observed'}</span>
+  </li>`;
+  }).join('');
   $('#callouts-empty').hidden = callouts.length > 0;
   wireAgentLinks('#callouts');
 }
@@ -375,7 +394,7 @@ if (location.hash && $(`#pane-${location.hash.slice(1)}`)) openTab(location.hash
 
 function connect() {
   if (STATIC_HOST) return;
-  const events = new EventSource('/api/stream');
+  const events = new EventSource(`${API_BASE}/api/stream`);
   events.addEventListener('state', (event) => renderState(JSON.parse(event.data)));
   events.addEventListener('agent', (event) => upsertAgent(JSON.parse(event.data), true));
   events.addEventListener('trade', () => {

@@ -1,0 +1,16 @@
+services:
+  clones:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "4319:4319"
+    volumes:
+      - clones-data:/app/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  clones-data:

@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: clones-runtime
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    disk:
+      name: clones-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: CLONES_DATA_FILE
+        value: /app/data/state.json
+      - key: CLONES_AUTO_CREATE_SEED
+        value: "true"
+      - key: CLONES_ADMIN_TOKEN
+        generateValue: true
+      - key: CLONES_LIVE_TRADING
+        value: "false"
+      - key: CLONES_AUTO_ACTIVATE
+        value: "false"
+      - key: CLONES_AUTO_DISCOVERY
+        value: "true"
+      - key: CLONES_AUTO_TRADE
+        value: "false"
+      - key: CLONES_TOKEN_MINT
+        sync: false
+      - key: SOLANA_RPC_URL
+        sync: false
+      - key: JUPITER_API_KEY
+        sync: false
+      - key: CLONES_SOL_USD_PRICE
+        value: "0"
