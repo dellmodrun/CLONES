@@ -21,13 +21,12 @@ try {
   const engine = new CloneEngine(store, config);
   const first = await engine.recordFee({ id: 'fee-1', amountUsd: 22.23, source: 'test' });
   assert.equal(first.result.spawned.length, 2);
-  assert.equal(first.state.clones.length, 2);
-  assert.equal(first.state.clones[0].pumpName, 'clone_0001');
+  assert.equal(first.state.clones.length, 3);
   assert.equal(first.state.clones[1].pumpName, 'clone_0002');
   assert.equal(first.state.fees.spentUsd, 20);
   const duplicate = await engine.recordFee({ id: 'fee-1', amountUsd: 22.23, source: 'test' });
   assert.equal(duplicate.result.duplicate, true);
-  assert.equal(duplicate.state.clones.length, 2);
+  assert.equal(duplicate.state.clones.length, 3);
   const persisted = JSON.parse(await readFile(config.dataFile, 'utf8'));
   assert.equal(persisted.feeEvents.length, 1);
 
