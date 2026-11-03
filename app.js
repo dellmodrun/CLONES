@@ -1,7 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const CONTRACT_ADDRESS = 'TBA';
-const PUMP_URL = 'https://pump.fun/';
+const CONTRACT_ADDRESS = 'NRWU4Ritj1x6jcNbpuyfoX76D7BQ8c6RfjjLoBkpump';
+const PUMP_URL = `https://pump.fun/coin/${CONTRACT_ADDRESS}`;
 const X_URL = 'https://x.com/clonesonchain';
 const EXPLORER_URL = 'https://solscan.io';
 const API_BASE = String(globalThis.CLONES_RUNTIME_URL || '').replace(/\/$/, '');
@@ -24,7 +24,7 @@ const STATIC_AGENT = {
   note: 'Waiting for the CLONES token launch on Solana via Pump.fun.',
 };
 const STATIC_STATE = {
-  mode: 'prelaunch',
+  mode: 'launched',
   network: 'Solana',
   ticker: 'CLONES',
   ca: CONTRACT_ADDRESS,
@@ -138,7 +138,7 @@ function renderState(nextState) {
   $('#h-agents').textContent = integer(stats.total);
   $('#h-into').textContent = usd(stats.investedUsd);
   $('#live-dot').classList.toggle('on', live);
-  $('#h-mode-text').textContent = live ? 'Live' : launched ? 'Configured' : 'Launching soon';
+  $('#h-mode-text').textContent = live ? 'Live' : launched ? 'Token live' : 'Launching soon';
   $('#ca-text').textContent = state.ca || 'TBA';
   $('#ca').disabled = !launched;
   $('#ca').title = launched ? 'Copy contract address' : 'Contract address to be announced';
@@ -146,7 +146,7 @@ function renderState(nextState) {
   $('#b-x').href = state.xUrl || X_URL;
 
   $('#b-dot').classList.toggle('on', live && Boolean(state.updatedAt));
-  $('#b-engine').textContent = live ? 'Engine online' : 'Awaiting launch';
+  $('#b-engine').textContent = live ? 'Engine online' : launched ? 'Token live · engine pending' : 'Awaiting launch';
   $('#b-dex').hidden = true;
 
   const next = state.next;
