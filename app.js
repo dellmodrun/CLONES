@@ -2,7 +2,7 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const CONTRACT_ADDRESS = 'TBA';
 const PUMP_URL = 'https://pump.fun/';
-const X_URL = '#';
+const X_URL = 'https://x.com/clonesonchain';
 const EXPLORER_URL = 'https://solscan.io';
 const API_BASE = String(globalThis.CLONES_RUNTIME_URL || '').replace(/\/$/, '');
 const STATIC_HOST = !API_BASE && !['localhost', '127.0.0.1'].includes(location.hostname);
