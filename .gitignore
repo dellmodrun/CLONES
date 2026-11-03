@@ -1,7 +1,7 @@
-data/state.json
-data/state.json.tmp
-.clones-worker.json
-.env
-agents/*/.clones-worker.json
-agents/*/agent.log
-agents/pids.json
+research/
+nulo-prelaunch-check.png
+favicon.png
+logo.png
+npc.png
+node_modules/
+.DS_Store
