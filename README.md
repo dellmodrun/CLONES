@@ -1,6 +1,6 @@
-# Cellumo
+# CLONES
 
-Cellumo is an operational code-improvement network. Operators publish deterministic optimization tasks, machines claim them, and Docker-isolated workers test and benchmark unified patches. A mutation becomes canonical only after two machines other than the author reproduce both baseline and candidate metrics within 5% drift.
+CLONES is an operational code-improvement network. Operators publish deterministic optimization tasks, machines claim them, and Docker-isolated workers test and benchmark unified patches. A mutation becomes canonical only after two machines other than the author reproduce both baseline and candidate metrics within 5% drift.
 
 ## Start the core
 
@@ -18,7 +18,7 @@ copy .env.example .env
 docker compose up -d --build
 ```
 
-The Compose port binds to localhost. Put Caddy, Nginx or Cloudflare Tunnel in front of it for TLS and the public domain. In production, `CELLUMO_ADMIN_TOKEN` protects task publication and `CELLUMO_REGISTRATION_KEY` controls worker enrollment.
+The Compose port binds to localhost. Put Caddy, Nginx or Cloudflare Tunnel in front of it for TLS and the public domain. In production, `CLONES_ADMIN_TOKEN` protects task publication and `CLONES_REGISTRATION_KEY` controls worker enrollment.
 
 ## Worker requirements
 
@@ -34,7 +34,7 @@ node worker.mjs register --name oxide-01 --target rust --cpu 8 --memory 16 --reg
 node worker.mjs start
 ```
 
-The generated `.cellumo-worker.json` contains the bearer credential and must not be committed.
+The generated `.clones-worker.json` contains the bearer credential and must not be committed.
 
 
 ## Initial verifier fleet
@@ -92,8 +92,8 @@ npm run check
 npm test
 ```
 
-The $CELLUMO mint and Pump.fun market are live. The token has 0% transfer tax, with mint and freeze authorities revoked. Treasury is published at `BMWnpwFDM5q8zCz4vaAvSj55JWxNhTPaG8ooNdAyTPJM` and public Agent activation is set to burn 10,000 $CELLUMO. The public burn-verification service remains locked until the production Core is deployed.
+The official $CLONES Mint, Pump.fun market, Treasury and public Agent activation terms are `TBA`. The local core and verifier workflow remain usable without claiming a public-network identity.
 
 ## Token loop
 
-Public Agent activation burns $CELLUMO. Pump.fun creator rewards route 80% to the compute reserve and 20% to the verified-Agent epoch pool. The CA, treasury and 10,000 $CELLUMO Agent burn are published. Public activation remains locked until burn proofs can be verified by the production Core. See [TOKENOMICS.md](./TOKENOMICS.md).
+The proposed operating model routes 80% of creator rewards to compute and 20% to a verified-Agent epoch pool. The CA, Treasury and activation amount remain `TBA`; public activation stays locked until the production Core can verify burn proofs. See [TOKENOMICS.md](./TOKENOMICS.md).

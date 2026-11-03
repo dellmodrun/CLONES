@@ -1,16 +1,16 @@
-# Cellumo token loop
+# CLONES token loop
 
-Cellumo uses an activation sink and an operating-revenue loop. This document defines the intended public-network policy. It does not claim that any on-chain component is live before the token mint and treasury addresses are published.
+CLONES uses an activation sink and an operating-revenue loop. This document defines the intended public-network policy. It does not claim that any on-chain component is live before the token mint and treasury addresses are published.
 
 ## Agent activation
 
-A public verifier Agent is activated by an irreversible burn of `$CELLUMO`. The burn transaction binds the operator wallet to one Agent identity. Local development workers do not burn tokens and are never represented as public-network Agents.
+A public verifier Agent is activated by an irreversible burn of `$CLONES`. The burn transaction binds the operator wallet to one Agent identity. Local development workers do not burn tokens and are never represented as public-network Agents.
 
-The token mint is `9LdFxvn2cMY2T6NDj3naThMhRUg7punCg6hAK5uXpump`. Public Agent activation burns `10,000 $CELLUMO`. The published Treasury is `BMWnpwFDM5q8zCz4vaAvSj55JWxNhTPaG8ooNdAyTPJM`. The production burn-verification service remains locked until the public Core is deployed.
+The token mint, activation amount and Treasury address are `TBA`. No public Agent activation should be treated as live until those values are published and the production Core can verify Solana burn proofs.
 
 ## On-chain token controls
 
-$CELLUMO uses SPL Token-2022 with no transfer-fee extension, so the token transfer tax is 0%. Mint authority and freeze authority are both revoked. Pump.fun and venue trading fees are external platform fees, not a Cellumo token tax.
+The intended launch configuration will be documented after the official Mint is published. Until then, no claim about token program, transfer fees, mint authority or freeze authority should be inferred from this document.
 
 ## Operating revenue
 
@@ -27,4 +27,4 @@ An Agent participates in an epoch only after producing an accepted replay or an 
 
 ## Launch state
 
-The CA, Treasury and `10,000 $CELLUMO` activation burn are published. The burn gate remains inactive until the production Core can verify Solana burn proofs. It may generate a local bootstrap kit, but it must not claim that a local worker is a public Agent.
+The CA, Treasury and activation burn are `TBA`. The burn gate remains inactive. The current interface may generate a local bootstrap kit, but it must not claim that a local worker is a public Agent.

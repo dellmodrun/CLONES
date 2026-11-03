@@ -1,0 +1,69 @@
+:root {
+  --bg: #09090a;
+  --panel: #111113;
+  --line: #363638;
+  --muted: #8b8b8f;
+  --text: #f2f2f3;
+  --acid: #d2d2d4;
+  --orange: #b8b8bb;
+  --pink: #98989c;
+  --blue: #e3e3e5;
+}
+
+body {
+  background: radial-gradient(circle at 50% -20%, #3a3a3d 0, #151517 28%, #09090a 58%);
+}
+
+.topbar {
+  background: rgba(13, 13, 15, .96);
+}
+
+.brand-logo {
+  position: relative !important;
+  width: 44px !important;
+  height: 44px !important;
+  flex: 0 0 44px !important;
+  overflow: hidden !important;
+  border: 1px solid #4a4a4d;
+  background: #a7a7a9 !important;
+}
+
+.brand-logo img {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transform: scale(2.05) !important;
+  filter: grayscale(1) contrast(1.08);
+}
+
+.topbar nav a:hover,
+.topbar nav a.active,
+.cell-actions .pump-action,
+.spawn-result button {
+  color: #111 !important;
+  background: #d2d2d4 !important;
+  border-color: #d2d2d4 !important;
+}
+
+.cell-intro,
+.cell-screen,
+.cell-process,
+.cell-feed,
+.workstation {
+  background-color: rgba(12, 12, 14, .94) !important;
+}
+
+.cell-wordmark,
+.cell-intro h1,
+.subhead,
+.work-command b {
+  color: #f3f3f4 !important;
+}
+
+.noise {
+  opacity: .055;
+  filter: grayscale(1);
+}

@@ -1,4 +1,4 @@
-name: Deploy Cellumo to GitHub Pages
+name: Deploy CLONES to GitHub Pages
 
 on:
   push:
