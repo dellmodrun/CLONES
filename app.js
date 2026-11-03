@@ -7,7 +7,7 @@ const EXPLORER_URL = 'https://solscan.io';
 const STATIC_HOST = !['localhost', '127.0.0.1'].includes(location.hostname);
 const STATIC_AGENT = {
   id: 1,
-  pumpName: 'agent_0001',
+  pumpName: 'clone_0001',
   style: 'Genesis',
   status: 'waiting',
   trading: 'waiting',
@@ -86,8 +86,8 @@ const ago = (time) => {
   if (seconds < 86400) return `${Math.round(seconds / 3600)}h ago`;
   return `${Math.round(seconds / 86400)}d ago`;
 };
-const agentTag = (id) => `AGENT #${String(id).padStart(4, '0')}`;
-const agentName = (agent) => agent?.pumpName || `agent_${agent?.id ?? agent?.agentId ?? 'pending'}`;
+const agentTag = (id) => `CLONE #${String(id).padStart(4, '0')}`;
+const agentName = (agent) => agent?.pumpName || `clone_${agent?.id ?? agent?.agentId ?? 'pending'}`;
 const avatar = (agent) => agent?.avatarUrl || './clones.png';
 const chainUrl = (type, id) => `${EXPLORER_URL}/${type === 'tx' ? 'tx' : 'account'}/${id}`;
 const api = async (path) => {
@@ -147,7 +147,7 @@ function renderState(nextState) {
   const next = state.next;
   $('#spawn-no').textContent = agentTag(next.number);
   $('#spawn-face').src = avatar(next.agent);
-  $('#spawn-name').textContent = next.agent ? agentName(next.agent) : 'Agent pending';
+  $('#spawn-name').textContent = next.agent ? agentName(next.agent) : 'Clone pending';
   $('#spawn-where').textContent = next.agent?.callout || 'Built on Solana';
   $('#xp-have').textContent = usd(next.haveUsd);
   $('#xp-need').textContent = usd(next.needUsd, 0);
@@ -155,8 +155,8 @@ function renderState(nextState) {
   $('#xp-fill').style.width = `${progress}%`;
   $('#xp').setAttribute('aria-valuenow', String(Math.round(progress)));
   $('#spawn-note').textContent = live
-    ? `The next agent activates when fees reach ${usd(next.needUsd, 0)}.`
-    : 'Agents begin after the CLONES launch on Pump.fun.';
+    ? `The next Clone activates when fees reach ${usd(next.needUsd, 0)}.`
+    : 'Clones begin after the CLONES launch on Pump.fun.';
 
   $('#s-in').textContent = integer(stats.total);
   $('#s-trading').textContent = `${integer(stats.active)} / ${integer(stats.stopped)}`;
@@ -197,7 +197,7 @@ async function loadBoard() {
   const rows = result.agents || [];
   $('#board').innerHTML = rows.map((agent, index) => `<tr data-id="${agent.id}">
     <td class="muted">${index + 1}</td>
-    <td><div class="who-cell"><img src="${avatar(agent)}" alt="" loading="lazy"><div><b>${esc(agentName(agent))}</b><div class="muted small">${esc(agent.style || 'Agent')} · ${esc(agent.status || 'waiting')}</div></div></div></td>
+    <td><div class="who-cell"><img src="${avatar(agent)}" alt="" loading="lazy"><div><b>${esc(agentName(agent))}</b><div class="muted small">${esc(agent.style || 'Clone')} · ${esc(agent.status || 'waiting')}</div></div></div></td>
     <td class="r">${usd(agent.bankUsd)}</td>
     <td class="r ${tone(agent.pnlUsd)}"><b>${signed(agent.pnlUsd)}</b></td>
     <td class="r hide-sm">${usd(agent.clonesUsd)}</td>
@@ -299,7 +299,7 @@ async function loadHolders(more = false) {
   const rows = result.rows || [];
   const html = rows.map((holder, index) => `<tr>
     <td class="muted">${offset + index + 1}</td>
-    <td><a href="${chainUrl('address', holder.address)}" target="_blank" rel="noopener">${short(holder.address)}</a>${holder.isAgent ? '<span class="tag agent">agent</span>' : ''}</td>
+    <td><a href="${chainUrl('address', holder.address)}" target="_blank" rel="noopener">${short(holder.address)}</a>${holder.isAgent ? '<span class="tag agent">clone</span>' : ''}</td>
     <td class="r">${compact(holder.amount)}</td>
     <td class="r">${holder.share == null ? '—' : `${holder.share.toFixed(3)}%`}</td>
   </tr>`).join('');
@@ -308,7 +308,7 @@ async function loadHolders(more = false) {
   $('#holders-empty').hidden = total > 0;
   $('#holders-more').hidden = total >= (result.total || 0);
   $('#holders-sub').textContent = result.count
-    ? `${integer(result.count)} holders · ${integer(result.agentsHolding)} agent wallets marked.`
+    ? `${integer(result.count)} holders · ${integer(result.agentsHolding)} Clone wallets marked.`
     : 'Top wallets will appear after launch.';
 }
 

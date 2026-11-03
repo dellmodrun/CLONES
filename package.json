@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "check": "node --check server.mjs && node --check app.js && node --check lib/config.mjs && node --check lib/store.mjs && node --check lib/engine.mjs && node --check lib/solana.mjs",
+    "test": "node test.mjs"
   }
 }

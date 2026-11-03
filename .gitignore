@@ -4,4 +4,6 @@ favicon.png
 logo.png
 npc.png
 node_modules/
+data/
+.env
 .DS_Store
