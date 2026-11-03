@@ -10,18 +10,29 @@ const STATIC_AGENT = {
   id: 1,
   pumpName: 'clone_0001',
   style: 'Genesis',
-  status: 'waiting',
-  trading: 'waiting',
+  status: 'active',
+  trading: 'active',
   avatarUrl: './clones.png',
-  address: null,
-  bankStartUsd: 0,
-  bankUsd: 0,
-  pnlUsd: null,
-  clonesUsd: 0,
-  trades: 0,
+  address: '7eFwJZ8uSvFxcqxoXMQXzqcVpFF4L286A1bMqsPrgmLo',
+  bankStartUsd: 5,
+  bankUsd: 5,
+  pnlUsd: 0,
+  clonesUsd: 5,
+  trades: 1,
   wins: 0,
   openPositions: 0,
-  note: 'Waiting for the CLONES token launch on Solana via Pump.fun.',
+  note: 'Active on Solana mainnet. Permanent CLONES allocation confirmed; the trading bank is ready.',
+};
+const STATIC_TRADE = {
+  id: '4nc2s2pKEFbxu5bW5vGe3AQsYRz3uEn26rLBEL2FPGGVXJEnpNYFMqHqRfKwbKoif9T4BJ5es2NXJ3288oDrTLSJ',
+  agentId: 1, side: 'buy', symbol: 'CLONES', usd: 5, status: 'submitted',
+  tx: '4nc2s2pKEFbxu5bW5vGe3AQsYRz3uEn26rLBEL2FPGGVXJEnpNYFMqHqRfKwbKoif9T4BJ5es2NXJ3288oDrTLSJ',
+  reason: 'Permanent initial CLONES allocation for the first funded Clone',
+  at: Date.parse('2026-11-03T13:55:30Z'),
+};
+const STATIC_POSITION = {
+  symbol: 'CLONES', amount: 1321991.881279, inUsd: 5, currentUsd: 5, pnlUsd: 0,
+  reason: 'Permanent protocol allocation. This position is never sold.',
 };
 const STATIC_STATE = {
   mode: 'launched',
@@ -35,24 +46,32 @@ const STATIC_STATE = {
   clonesBuyUsd: 5,
   bankUsd: 5,
   sweepUsd: 10,
-  updatedAt: null,
-  token: { marketCap: null },
+  updatedAt: '2026-11-03T13:55:30Z',
+  token: { marketCap: 3732.52 },
   agents: {
     total: 1,
-    active: 0,
+    active: 1,
     stopped: 0,
-    bankUsd: 0,
-    investedUsd: 0,
+    bankUsd: 5,
+    investedUsd: 5,
     profitToClonesUsd: 0,
-    trades: 0,
+    trades: 1,
     wins: 0,
     calloutsPosted: 0,
     calloutsQueued: 0,
     heldPct: null,
   },
-  next: { number: 2, agent: null, haveUsd: 0, needUsd: 10, ready: 0 },
-  fees: { claimedUsd: 0, unclaimedUsd: 0, spentUsd: 0, teamUsd: 0, claims: [] },
-  treasury: null,
+  next: { number: 2, agent: null, haveUsd: 2.24, needUsd: 10, ready: 0.224 },
+  fees: {
+    claimedUsd: 13.6, unclaimedUsd: 0, spentUsd: 10, teamUsd: 1.36,
+    claims: [{
+      amountUsd: 13.6, source: 'pump-creator-fee-mainnet',
+      signature: '5w3ubZqzsKD8c7vNV6gtndHCNzTcmCpYaQJEmqCnZjDGasCK5YrQ9hUEAMoVB8u26dd8vbVmvZfHtD28BesEaocp',
+      observedAt: '2026-11-03T13:54:38Z',
+    }],
+  },
+  treasury: '758St9w818ghEdU6iQL9ztbJast1L2Bh673zd3aDbAu1',
+  chain: { treasuryLamports: 521288281 },
 };
 
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -97,10 +116,13 @@ const api = async (path) => {
     if (route === '/api/state') return STATIC_STATE;
     if (route === '/api/leaderboard') return { agents: [STATIC_AGENT] };
     if (route === '/api/agents') return { agents: [STATIC_AGENT], total: 1 };
-    if (route === '/api/trades') return { trades: [] };
+    if (route === '/api/trades') return { trades: [STATIC_TRADE] };
     if (route === '/api/callouts') return { callouts: [] };
-    if (route === '/api/holders') return { rows: [], total: 0, count: 0, agentsHolding: 0 };
-    if (route === '/api/agent/1') return { agent: STATIC_AGENT, cashUsd: 0, positions: [], trades: [], callouts: [] };
+    if (route === '/api/holders') return {
+      rows: [{ address: STATIC_AGENT.address, amount: 1321991.881279, share: 0.1321991881279, isAgent: true }],
+      total: 1, count: 23, agentsHolding: 1,
+    };
+    if (route === '/api/agent/1') return { agent: STATIC_AGENT, cashUsd: 5, positions: [STATIC_POSITION], trades: [STATIC_TRADE], callouts: [] };
     return null;
   }
   try {
@@ -262,13 +284,15 @@ function tradeLine(trade) {
   const agent = agents.get(trade.agentId);
   const action = trade.side === 'buy' ? 'bought' : trade.side === 'sell' ? 'sold' : 'put profit into';
   const asset = trade.side === 'sweep' ? '<b>$CLONES</b>' : `<a href="${PUMP_URL}" target="_blank" rel="noopener"><b>${esc(trade.symbol || 'token')}</b></a>`;
+  const tx = trade.tx || trade.signature;
+  const timestamp = trade.at || (trade.createdAt ? Date.parse(trade.createdAt) : Date.now());
   return `<li class="item ${trade.side}">
     <img src="${avatar(agent)}" alt="" loading="lazy">
     <div class="item-body">
       <div class="item-head"><a href="#" data-agent="${trade.agentId}"><b>${esc(agentName(agent || trade))}</b></a> <span class="act ${trade.side}">${action}</span> ${asset} <span class="muted">${usd(trade.usd)}</span></div>
       <div class="said">${esc(trade.reason || '')}</div>
     </div>
-    <span class="when muted">${trade.tx ? `<a href="${chainUrl('tx', trade.tx)}" target="_blank" rel="noopener">${ago(trade.at)}</a>` : ago(trade.at)}</span>
+    <span class="when muted">${tx ? `<a href="${chainUrl('tx', tx)}" target="_blank" rel="noopener">${ago(timestamp)}</a>` : ago(timestamp)}</span>
   </li>`;
 }
 
@@ -346,7 +370,13 @@ async function showAgent(id) {
     ['Cash', usd(detail.cashUsd), 'trading bank on Pump.fun'],
   ].map(([key, value, sub]) => `<div><span class="k">${key}</span><b>${value}</b><span class="muted small">${sub}</span></div>`).join('');
   $('#sh-note').textContent = agent.note || '';
-  $('#sh-pos').innerHTML = '<tr><td colspan="5" class="muted">No positions yet.</td></tr>';
+  $('#sh-pos').innerHTML = (detail.positions || []).map((position) => `<tr>
+    <td><b>${esc(position.symbol)}</b><div class="muted small">${compact(position.amount)} tokens</div></td>
+    <td class="r">${usd(position.inUsd)}</td>
+    <td class="r">${usd(position.currentUsd)}</td>
+    <td class="r ${tone(position.pnlUsd)}">${signed(position.pnlUsd)}</td>
+    <td class="hide-sm">${esc(position.reason || '')}</td>
+  </tr>`).join('') || '<tr><td colspan="5" class="muted">No positions yet.</td></tr>';
   $('#sh-trades').innerHTML = (detail.trades || []).map(tradeLine).join('') || '<li class="muted">No trades yet.</li>';
   $('#sh-callouts').innerHTML = '<li class="muted">No callouts yet.</li>';
   $('#sheet').hidden = false;
@@ -408,5 +438,21 @@ function connect() {
   });
 }
 
-api('/api/state').then((result) => result && renderState(result));
+async function refreshMarket() {
+  try {
+    const response = await fetch(`https://api.jup.ag/tokens/v2/search?query=${CONTRACT_ADDRESS}`, { cache: 'no-store' });
+    if (!response.ok) return;
+    const [token] = await response.json();
+    if (!token || !state) return;
+    state.token = { ...(state.token || {}), marketCap: Number(token.mcap || token.fdv) || null };
+    $('#h-mcap').textContent = state.token.marketCap ? usd(state.token.marketCap) : '—';
+  } catch { /* Keep the last verified snapshot. */ }
+}
+
+api('/api/state').then((result) => {
+  if (!result) return;
+  renderState(result);
+  refreshMarket();
+});
+setInterval(refreshMarket, 300_000);
 connect();

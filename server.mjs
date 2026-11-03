@@ -153,6 +153,9 @@ async function activateClone(cloneId) {
       item.trading = 'active';
       item.bankUsd = config.tradingBankUsd;
       item.clonesUsd = config.clonesBuyUsd;
+      item.clonesAmountRaw = trade.execution?.totalOutputAmount || trade.summary.outAmount;
+      item.clonesAmount = Number(item.clonesAmountRaw) / (10 ** config.tokenDecimals);
+      item.trades = Number(item.trades || 0) + 1;
       item.activationSignature = trade.execution?.signature || null;
       item.note = 'Active. Permanent CLONES allocation confirmed; trading bank is ready.';
       state.trades.unshift({
@@ -275,7 +278,15 @@ async function serveApi(url, req, res) {
     const id = Number(url.pathname.split('/').pop());
     const clone = clones.find((item) => item.id === id);
     return clone
-      ? sendJson(res, { agent: clone, clone, cashUsd: clone.bankUsd, positions: [], trades: [], callouts: [] })
+      ? sendJson(res, {
+        agent: clone, clone, cashUsd: clone.bankUsd,
+        positions: clone.clonesAmount ? [{
+          symbol: 'CLONES', amount: clone.clonesAmount, inUsd: clone.clonesUsd,
+          currentUsd: clone.clonesUsd, pnlUsd: 0,
+          reason: 'Permanent protocol allocation. This position is never sold.',
+        }] : [],
+        trades: state.trades.filter((trade) => trade.agentId === clone.id), callouts: [],
+      })
       : sendJson(res, { error: 'Clone not found' }, 404);
   }
   if (req.method === 'GET' && url.pathname === '/api/stream') {
